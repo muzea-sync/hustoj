@@ -1,6 +1,7 @@
 // File:   judge_client.cc
 #define IGNORE_ESOL
 #define RASPBERRY_PI
+typedef unsigned long long uint64_t;
 // Author: sempr
 // refacted by zhblue
 /*
@@ -51,28 +52,27 @@
 
 #ifdef RASPBERRY_PI
 struct pt_regs {
-        long uregs[18];
+        uint64_t uregs[38];
 };
 
-#define ARM_cpsr        uregs[16]
-#define ARM_pc          uregs[15]
-#define ARM_lr          uregs[14]
-#define ARM_sp          uregs[13]
-#define ARM_ip          uregs[12]
-#define ARM_fp          uregs[11]
-#define ARM_r10         uregs[10]
-#define ARM_r9          uregs[9]
-#define ARM_r8          uregs[8]
-#define ARM_r7          uregs[7]
-#define ARM_r6          uregs[6]
-#define ARM_r5          uregs[5]
-#define ARM_r4          uregs[4]
-#define ARM_r3          uregs[3]
-#define ARM_r2          uregs[2]
-#define ARM_r1          uregs[1]
-#define ARM_r0          uregs[0]
-#define ARM_ORIG_r0     uregs[17]
 
+#define REG_V0 2
+#define REG_A0 4
+
+#define mips_REG_V0 uregs[REG_V0]
+#define mips_REG_A0 uregs[REG_A0 + 0]
+#define mips_REG_A1 uregs[REG_A0 + 1]
+#define mips_REG_A2 uregs[REG_A0 + 2]
+#define mips_REG_A3 uregs[REG_A0 + 3]
+#define mips_REG_A4 uregs[REG_A0 + 4]
+#define mips_REG_A5 uregs[REG_A0 + 5]
+#define mips_REG_SP uregs[29]
+#define mips_REG_EPC uregs[34]
+
+/* PTRACE_GETREGS on MIPS is available since linux v2.6.15. */
+#define ARCH_REGS_FOR_GETREGS mips_regs
+#define ARCH_PC_REG mips_REG_EPC
+#define ARCH_SP_REG mips_REG_SP
 
 
 #endif
@@ -114,7 +114,7 @@ struct pt_regs {
 
 #endif
 #else
-#define REG_SYSCALL ARM_r7
+#define REG_SYSCALL mips_REG_V0
 #endif
 
 static int DEBUG = 0;
